@@ -20,7 +20,17 @@ jobs:
       - run:
           name: install-e2e-test
           command: cd ./test/e2e && npm install
-      steps:
+      - run:
+          name: test
+          command: npm run test
+      - store_artifacts:
+          path: /tmp/artifact-1
+
+          destination: artifact-file-cypress-result_`date +%Y-%m-%d_%H-%M-%S`
+
+      - store_artifacts:
+          path: /tmp/artifacts
+
       - restore_cache:
           keys:
             - sonar-scanner-4.0.0-v0.0.2
