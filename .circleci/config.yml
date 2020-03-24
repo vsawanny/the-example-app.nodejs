@@ -20,13 +20,28 @@ jobs:
       - run:
           name: install-e2e-test
           command: cd ./test/e2e && npm install
+      steps:
+      - restore_cache:
+          keys:
+            - sonar-scanner-4.0.0-v0.0.2
       - run:
-          name: test
-          command: npm run test
-      - store_artifacts:
-          path: /tmp/artifact-1
-
-          destination: artifact-file-cypress-result_`date +%Y-%m-%d_%H-%M-%S`
-
-      - store_artifacts:
-          path: /tmp/artifacts
+          name: Install Sonarqube scanner
+          command: |
+            if test ! -d /tmp/sonar-scanner; then
+                wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.0.0.1744-linux.zip
+                unzip sonar-scanner-cli-4.0.0.1744-linux.zip
+                rm sonar-scanner-cli-4.0.0.1744-linux.zip
+                mv sonar-scanner-4.0.0.1744-linux /tmp/sonar-scanner
+            fi
+      - run:
+          name: Run Sonarqube scanner
+          command: |
+            /tmp/sonar-scanner/bin/sonar-scanner \
+                -Dsonar.sources=./ \
+                -Dsonar.host.url=https://sonarcloud.io/projects \
+                -Dsonar.projectKey=unique-key
+                -Dsonar.login=e5d5a9da856ae9f6e7c33c22a4c036e7075cda55
+      - save_cache:
+          key: sonar-scanner-4.0.0-v0.0.2
+          paths:
+            - /tmp/sonar-scanner
